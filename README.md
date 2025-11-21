@@ -174,5 +174,4 @@ results/
 ```
 
 ---
-
 © 2025 · University of Fribourg · Pattern Recognition
