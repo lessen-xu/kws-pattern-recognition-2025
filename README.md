@@ -185,4 +185,4 @@ results/
 
 ---
 
-© 2025 — Keyword Spotting Project
+© 2025 · University of Fribourg · Pattern Recognition
