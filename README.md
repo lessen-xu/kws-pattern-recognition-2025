@@ -175,21 +175,6 @@ results/
   retrieval_scores.json
 ```
 
----
-
-## 🧱 Requirements (Suggested)
-
-```
-torch
-torchvision
-numpy
-scikit-image
-Pillow
-matplotlib
-tqdm
-```
-
-(Place in `requirements.txt` if needed.)
 
 ---
 
