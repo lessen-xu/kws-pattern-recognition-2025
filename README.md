@@ -21,8 +21,6 @@ data/                  # Raw dataset (ignored by Git)
 results/               # Generated retrieval examples & visualizations
 ```
 
-Each member works **only inside their own folder** to avoid merge conflicts.
-
 ---
 
 ## 👥 Team Roles
@@ -37,7 +35,7 @@ Each member works **only inside their own folder** to avoid merge conflicts.
 
 ---
 
-## 🔄 Task Dependencies (Minimal & Clear)
+## 🔄 Task Dependencies 
 
 ```
 A → B → D (training)
@@ -174,14 +172,6 @@ results/
   embeddings.npy
   retrieval_scores.json
 ```
-
-
----
-
-## 📌 Notes
-- The goal is not SOTA performance — just a clean, working KWS system.  
-- Keep outputs reproducible and organize all intermediate files in folders.  
-- Commit small, modular PRs to avoid conflicts.
 
 ---
 
