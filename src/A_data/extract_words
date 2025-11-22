@@ -1,0 +1,102 @@
+import os
+import re
+import xml.etree.ElementTree as ET
+from PIL import Image
+
+# -------------------------------------------------------
+# 1. 设置项目路径结构
+# -------------------------------------------------------
+
+# 当前脚本所在目录：src/A_data/
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 项目根目录：kws-pattern-recognition-2025/
+ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "../.."))
+
+# 输入数据目录：src/KWS-competition/
+DATA_DIR = os.path.join(ROOT_DIR, "src", "KWS-competition")
+
+LOC_DIR = os.path.join(DATA_DIR, "locations")
+IMG_DIR = os.path.join(DATA_DIR, "images")
+
+# 输出目录（裁剪图、metadata）
+OUT_DIR = os.path.join(DATA_DIR, "cropped_words")
+META_PATH = os.path.join(SCRIPT_DIR, "words_metadata.tsv")
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+
+# -------------------------------------------------------
+# 2. 工具函数
+# -------------------------------------------------------
+
+def parse_path_points(d_string):
+    nums = list(map(float, re.findall(r"[-+]?\d*\.\d+|[-+]?\d+", d_string)))
+    xs = nums[0::2]
+    ys = nums[1::2]
+    return xs, ys
+
+def find_image_for_page(page):
+    for ext in ["png", "jpg", "jpeg", "tif"]:
+        p = os.path.join(IMG_DIR, f"{page}.{ext}")
+        if os.path.exists(p):
+            return p
+    raise FileNotFoundError(f"Cannot find page image for page {page}")
+
+
+# -------------------------------------------------------
+# 3. 主处理流程
+# -------------------------------------------------------
+
+metadata = []
+
+print("Starting Task A (word extraction) ...")
+print(f"Using data directory: {DATA_DIR}")
+
+for loc_file in os.listdir(LOC_DIR):
+    if loc_file.startswith("."):
+        continue
+
+    page = os.path.splitext(loc_file)[0]  # 305.svg → 305
+    svg_path = os.path.join(LOC_DIR, loc_file)
+
+    tree = ET.parse(svg_path)
+    root = tree.getroot()
+
+    img_path = find_image_for_page(page)
+    img = Image.open(img_path).convert("RGB")
+
+    ns = {"svg": "http://www.w3.org/2000/svg"}
+
+    for path in root.findall(".//svg:path", ns):
+        word_id = path.attrib.get("id")
+        d_str = path.attrib.get("d")
+
+        xs, ys = parse_path_points(d_str)
+
+        xmin, xmax = int(min(xs)), int(max(xs))
+        ymin, ymax = int(min(ys)), int(max(ys))
+
+        crop = img.crop((xmin, ymin, xmax, ymax))
+
+        # 相对路径（从 metadata 到 cropped_words）
+        rel_path = f"../KWS-competition/cropped_words/{word_id}.png"
+        save_path = os.path.join(OUT_DIR, f"{word_id}.png")
+
+        crop.save(save_path)
+
+        metadata.append([word_id, page, xmin, ymin, xmax, ymax, rel_path])
+
+
+# -------------------------------------------------------
+# 4. 输出 metadata
+# -------------------------------------------------------
+
+with open(META_PATH, "w", encoding="utf-8") as f:
+    f.write("word_id\tpage\txmin\tymin\txmax\tymax\tpath\n")
+    for row in metadata:
+        f.write("\t".join(map(str, row)) + "\n")
+
+print("Task A completed.")
+print(f"Metadata saved to: {META_PATH}")
+print(f"Cropped images saved to: {OUT_DIR}")
