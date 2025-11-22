@@ -1,20 +1,44 @@
-Task A - Word Extraction
+Task A – Word Extraction
 
-Input data:
-src/KWS-competition/images/
-src/KWS-competition/locations/
+1.Input
+The raw dataset is stored in:
+src/KWS/
+This folder contains:
 
-Output:
-src/KWS-competition/cropped_words/
-src/A_data/words_metadata.tsv
+images/ (full page document images)
 
-How to run:
-cd src/A_data
-python extract_words.py
+locations/ (SVG files containing word-level polygon paths)
 
-Description:
-This script reads each SVG file in locations/, extracts polygon coordinates,
-computes bounding boxes, crops word images from the page images, and writes
-all results into words_metadata.tsv with relative paths.
+transcription.tsv
 
-The output metadata is used by Task B, Task C, and Task D.
+train.tsv
+
+validation.tsv
+
+keywords.tsv
+
+2.Process
+Task A is implemented in extract_words.py located in:
+src/A_data/
+
+The script reads all images and SVG files from src/KWS/, parses each SVG <path> element, extracts polygon coordinates, computes the bounding box for each word, and crops the corresponding region from the page image.
+
+3.Output
+All cropped word images are saved in:
+src/A_data/cropped_words/
+
+A metadata file named words_metadata.tsv is created in:
+src/A_data/
+
+Each line in words_metadata.tsv contains:
+word_id page xmin ymin xmax ymax relative_image_path
+
+4.How to run
+Open a terminal and execute:
+
+python src/A_data/extract_words.py
+
+The script automatically reads input from src/KWS/ and writes all outputs to src/A_data/.
+
+5.Usage
+The outputs of Task A (cropped word images and metadata file) are required for Task B (pair generation), Task C (model training), and Task D (evaluation).
